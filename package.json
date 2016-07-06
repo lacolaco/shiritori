@@ -1,0 +1,24 @@
+{
+  "name": "shiritori",
+  "version": "1.0.0",
+  "description": "みなさんのGitHub緑化をお手伝いするしりとりリポジトリです。 参加の方法は[CONTRIBUTING.md](CONTRIBUTING.md)を参照してください。",
+  "main": "test.js",
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "^2.5.3"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/laco0416/shiritori.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/laco0416/shiritori/issues"
+  },
+  "homepage": "https://github.com/laco0416/shiritori#readme"
+}
