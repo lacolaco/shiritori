@@ -1,3 +1,5 @@
+'use srtict';
+
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -30,35 +32,48 @@ function assertGameEnd(words) {
     });
 }
 
+function tokensToPronunciation(tokens) {
+    return tokens.map(token => token.pronunciation || token.surface_form).join('');
+}
+
 function assertGameEndByPronunciation(words) {
     return Promise.all(
         words.map((w, i) => {
             return tokenizer.tokenize(w).then(tokens => {
-                const lastToken = tokens[tokens.length - 1];
-                if (!lastToken.pronunciation) {
-                    // カタカナ語の場合、発音が含まれない場合がある。
-                    // この場合はassertGameEndでチェック可能なのでここでは素通しする
-                    return;
-                }
-                if (lastToken.pronunciation.endsWith('ン')) {
-                    throw new Error(`Game end: ${w} (${lastToken.pronunciation})`);
+                const pron = tokensToPronunciation(tokens);
+                if (pron.endsWith('ン') || pron.endsWith('ん')) {
+                    throw new Error(`Game end: ${w} (${pron})`);
                 }
             });
         })
     );
 }
 
-describe('shiritori', () => {
-    it('should not contain same word', () => {
-        const words = extractWordsFromREADME();
-        assertDuplicatedWord(words);
+function assertConnection(words) {
+    const arr = [];
+    const promises = words.map((w, i) => {
+        arr.push();
+        tokenizer.tokenize(w).then(tokens => arr[i] = tokens);
     });
+    return Promise.all(promises).then(() => {
+        arr.forEach((tokens, i) => {
+            if (i === 0) return;
 
-    it('should not have game-end suffix', () => {
-        const words = extractWordsFromREADME();
-        assertGameEnd(words);
-    })
-});
+            const prevPron = tokensToPronunciation(arr[i - 1]);
+            const currPron = tokensToPronunciation(tokens);
+            const prevArr = Array.from(prevPron);
+            var prevLast = prevArr[prevArr.length - 1];
+            if (/[ァィゥェォャュョー]/.test(prevLast)) {
+                // 長音、促音の場合は次の文字まで一致を求める
+                prevLast = prevArr[prevArr.length - 2] + prevLast;
+            }
+            console.log([prevPron, prevLast, currPron]);
+            if (!currPron.startsWith(prevLast)) {
+                throw new Error(`Unconnected words: ${words[i - 1]} -> ${words[i]}`);
+            }
+        })
+    });
+}
 
 describe('meta_test', () => {
     describe('assertDuplicatedWord', () => {
@@ -83,7 +98,7 @@ describe('meta_test', () => {
     });
     describe('tokenizer', () => {
         it('should work well', () => {
-            return tokenizer.tokenize('りんご');
+            return tokenizer.tokenize('りんご').then(tokens => console.log(tokens));
         });
     });
     describe('assertGameEndByPronunciation', () => {
@@ -100,5 +115,55 @@ describe('meta_test', () => {
                     console.log(err);
                 });
         })
+    });
+    describe('assertConnection', () => {
+        it('should work well with valid words', () => {
+            const words = ['しりとり', 'りんご'];
+            return assertConnection(words);
+        });
+        it('should work well with valid words (special)', () => {
+            const words = ['ティッシュ', 'シュークリーム'];
+            return assertConnection(words);
+        });
+        it('should work well with invalid words', () => {
+            const words = ['しりとり', '忍者'];
+            return assertConnection(words)
+                .then(() => {
+                    throw new Error('no error');
+                }, err => {
+                    console.log(err);
+                });
+        });
+        it('should work well with invalid words (special)', () => {
+            const words = ['サッカー', 'かもめ'];
+            return assertConnection(words)
+                .then(() => {
+                    throw new Error('no error');
+                }, err => {
+                    console.log(err);
+                });
+        })
+    });
+});
+
+describe('shiritori', () => {
+    it('should not contain same word', () => {
+        const words = extractWordsFromREADME();
+        assertDuplicatedWord(words);
+    });
+
+    it('should not have game-end suffix', () => {
+        const words = extractWordsFromREADME();
+        assertGameEnd(words);
+    });
+
+    it('should not have game-end suffix (by pronunciation)', () => {
+        const words = extractWordsFromREADME();
+        return assertGameEndByPronunciation(words);
+    });
+
+    it('should keep connection', () => {
+        const words = extractWordsFromREADME();
+        return assertConnection(words);
     });
 });
