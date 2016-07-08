@@ -9,7 +9,15 @@ const tokenizer = require('./tokenizer');
 function extractWordsFromREADME() {
     const content = fs.readFileSync(path.join(__dirname, '../README.md')).toString();
     const words = content.match(/\*\s(.*)/g)
-        .map(w => w.replace('* ', '').trim());
+        .map(w => w.replace('* ', '').trim())
+        .map(w => {
+            const match = w.match(/.+\s+\<(.+)\>/)
+            if (match) {
+                return match[1];
+            } else {
+                return w;
+            }            
+        });
     return words;
 }
 
