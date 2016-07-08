@@ -5,20 +5,28 @@ const fs = require('fs');
 const path = require('path');
 
 const tokenizer = require('./tokenizer');
+const Bot = require('./github-bot');
+var bot = null;
+if (process.env.CI_PULL_REQUEST && process.env.GITHUB_TOKEN) {
+    const url = process.env.CI_PULL_REQUEST.split('/');
+    bot = new Bot(+url[url.length - 1]);
+    bot.setToken(process.env.GITHUB_TOKEN);
+}
 
 function extractWordsFromREADME() {
     const content = fs.readFileSync(path.join(__dirname, '../README.md')).toString();
     const words = content.match(/\*\s(.*)/g)
-        .map(w => w.replace('* ', '').trim())
-        .map(w => {
-            const match = w.match(/.+\s+\<(.+)\>/)
-            if (match) {
-                return match[1];
-            } else {
-                return w;
-            }            
-        });
+        .map(w => w.replace('* ', '').trim());
     return words;
+}
+
+function usePronInfo(word) {
+    const match = word.match(/.+\s+\<(.+)\>/)
+    if (match) {
+        return match[1];
+    } else {
+        return word;
+    }
 }
 
 function assertDuplicatedWord(words) {
@@ -46,7 +54,7 @@ function tokensToPronunciation(tokens) {
 
 function assertGameEndByPronunciation(words) {
     return Promise.all(
-        words.map((w, i) => {
+        words.map(w => usePronInfo(w)).map((w, i) => {
             return tokenizer.tokenize(w).then(tokens => {
                 const pron = tokensToPronunciation(tokens);
                 if (pron.endsWith('ン') || pron.endsWith('ん')) {
@@ -59,7 +67,7 @@ function assertGameEndByPronunciation(words) {
 
 function assertConnection(words) {
     const arr = [];
-    const promises = words.map((w, i) => {
+    const promises = words.map(w => usePronInfo(w)).map((w, i) => {
         arr.push();
         tokenizer.tokenize(w).then(tokens => arr[i] = tokens);
     });
@@ -174,4 +182,19 @@ describe('shiritori', () => {
         const words = extractWordsFromREADME();
         return assertConnection(words);
     });
+
+    after(() => {
+        if (bot) {
+            const words = extractWordsFromREADME();
+            const lastWord = words[words.length - 1];
+            return tokenizer.tokenize(lastWord)
+                .then(tokens => tokensToPronunciation(tokens))
+                .then(pron => {
+                    return bot.comment(`
+* **単語**: ${lastWord}
+* **読み**: ${pron}
+`)
+                });
+        }
+    })
 });
