@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const tokenizer = require('./tokenizer');
+const Bot = require('./github-bot');
 
 function extractWordsFromREADME() {
     const content = fs.readFileSync(path.join(__dirname, '../README.md')).toString();
@@ -173,5 +174,13 @@ describe('shiritori', () => {
     it('should keep connection', () => {
         const words = extractWordsFromREADME();
         return assertConnection(words);
+    });
+
+    after(() => {
+        console.log(process.env)
+        if (process.env.CIRCLE_PR_NUMBER) {
+            const bot = new Bot(+process.env.CIRCLE_PR_NUMBER);
+            bot.comment('test');
+        }
     });
 });
