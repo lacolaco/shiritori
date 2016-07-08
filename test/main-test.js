@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const tokenizer = require('./tokenizer');
+const Bot = require('./github-bot');
 
 function extractWordsFromREADME() {
     const content = fs.readFileSync(path.join(__dirname, '../README.md')).toString();
@@ -32,15 +33,21 @@ function assertGameEnd(words) {
     });
 }
 
-function tokensToPronunciation(tokens) {
-    return tokens.map(token => token.pronunciation || token.surface_form).join('');
+function getPronunciation(word) {
+    const match = word.match(/.+\s+\<(.+)\>/)
+    if (match) {
+        return Promise.resolve(match[1]);
+    } else {
+        return tokenizer.tokenize(word).then(tokens => {
+            return tokens.map(token => token.pronunciation || token.surface_form).join('')
+        });
+    }
 }
 
 function assertGameEndByPronunciation(words) {
     return Promise.all(
         words.map((w, i) => {
-            return tokenizer.tokenize(w).then(tokens => {
-                const pron = tokensToPronunciation(tokens);
+            return getPronunciation(w).then(pron => {
                 if (pron.endsWith('ン') || pron.endsWith('ん')) {
                     throw new Error(`Game end: ${w} (${pron})`);
                 }
@@ -52,24 +59,23 @@ function assertGameEndByPronunciation(words) {
 function assertConnection(words) {
     const arr = [];
     const promises = words.map((w, i) => {
-        arr.push();
-        tokenizer.tokenize(w).then(tokens => arr[i] = tokens);
+        return getPronunciation(w).then(pron => {
+            arr[i] = pron;
+        });
     });
     return Promise.all(promises).then(() => {
-        arr.forEach((tokens, i) => {
+        arr.forEach((pron, i) => {
             if (i === 0) return;
-
-            const prevPron = tokensToPronunciation(arr[i - 1]);
-            const currPron = tokensToPronunciation(tokens);
+            const prevPron = arr[i - 1];
             const prevArr = Array.from(prevPron);
             var prevLast = prevArr[prevArr.length - 1];
             if (/[ァィゥェォャュョー]/.test(prevLast)) {
                 // 長音、促音の場合は次の文字まで一致を求める
                 prevLast = prevArr[prevArr.length - 2] + prevLast;
             }
-            console.log([prevPron, prevLast, currPron]);
-            if (!currPron.startsWith(prevLast)) {
-                throw new Error(`Unconnected words: ${words[i - 1]} -> ${words[i]}`);
+            console.log([prevPron, prevLast, pron]);
+            if (!pron.startsWith(prevLast)) {
+                throw new Error(`Unconnected words: ${words[i - 1]} (${prevPron}) -> ${words[i]} (${pron})`);
             }
         })
     });
@@ -166,4 +172,29 @@ describe('shiritori', () => {
         const words = extractWordsFromREADME();
         return assertConnection(words);
     });
+
+    after(() => {
+        var bot = null;
+        if (process.env.CI_PULL_REQUEST && process.env.GITHUB_TOKEN) {
+            const url = process.env.CI_PULL_REQUEST.split('/');
+            bot = new Bot(+url[url.length - 1]);
+            bot.setToken(process.env.GITHUB_TOKEN);
+        }
+        if (bot) {
+            const words = extractWordsFromREADME();
+            const lastWord = words[words.length - 1];
+            return getPronunciation(lastWord)
+                .then(pron => {
+                    return bot.comment(`
+* **単語**: ${lastWord}
+* **読み**: ${pron}
+
+もし想定外の読みになっている場合は次のように修正してください
+
+    * 単語 <タンゴ>
+
+`)
+                });
+        }
+    })
 });
