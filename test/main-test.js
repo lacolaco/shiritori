@@ -6,12 +6,6 @@ const path = require('path');
 
 const tokenizer = require('./tokenizer');
 const Bot = require('./github-bot');
-var bot = null;
-if (process.env.CI_PULL_REQUEST && process.env.GITHUB_TOKEN) {
-    const url = process.env.CI_PULL_REQUEST.split('/');
-    bot = new Bot(+url[url.length - 1]);
-    bot.setToken(process.env.GITHUB_TOKEN);
-}
 
 function extractWordsFromREADME() {
     const content = fs.readFileSync(path.join(__dirname, '../README.md')).toString();
@@ -180,6 +174,12 @@ describe('shiritori', () => {
     });
 
     after(() => {
+        var bot = null;
+        if (process.env.CI_PULL_REQUEST && process.env.GITHUB_TOKEN) {
+            const url = process.env.CI_PULL_REQUEST.split('/');
+            bot = new Bot(+url[url.length - 1]);
+            bot.setToken(process.env.GITHUB_TOKEN);
+        }
         if (bot) {
             const words = extractWordsFromREADME();
             const lastWord = words[words.length - 1];
