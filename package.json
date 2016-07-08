@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "みなさんのGitHub緑化をお手伝いするしりとりリポジトリです。 参加の方法は[CONTRIBUTING.md](CONTRIBUTING.md)を参照してください。",
   "main": "test.js",
-  "dependencies": {},
+  "dependencies": {
+    "github": "^2.1.0"
+  },
   "devDependencies": {
     "kuromoji": "0.0.5",
     "mocha": "^2.5.3"
