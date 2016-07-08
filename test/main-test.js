@@ -187,7 +187,7 @@ describe('shiritori', () => {
         if (bot) {
             const words = extractWordsFromREADME();
             const lastWord = words[words.length - 1];
-            return tokenizer.tokenize(lastWord)
+            return tokenizer.tokenize(usePronInfo(lastWord))
                 .then(tokens => tokensToPronunciation(tokens))
                 .then(pron => {
                     return bot.comment(`
