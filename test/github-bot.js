@@ -36,7 +36,9 @@ class Bot {
     comment(message) {
         return this.github.issues.createComment(createOptions({
             number: this.issueNumber,
-            body: message
+            body: `**From Circle CI** 
+            
+            ${message}`
         }));
     }
 }
