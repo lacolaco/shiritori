@@ -177,9 +177,10 @@ describe('shiritori', () => {
     });
 
     after(() => {
-        if (process.env.CI_PULL_REQUEST) {
+        if (process.env.CI_PULL_REQUEST && process.env.GITHUB_TOKEN) {
             const path = process.env.CI_PULL_REQUEST.split('/');
             const bot = new Bot(+path[path.length - 1]);
+            bot.setToken(process.env.GITHUB_TOKEN);
             return bot.comment('test');
         }
     });

@@ -1,15 +1,6 @@
 'use strict';
 
 const GitHubApi = require('github');
-const github = new GitHubApi({
-    // optional
-    debug: true,
-    protocol: "https",
-    headers: {
-        "user-agent": "laco-gh-bot" // GitHub is happy with a unique user agent
-    },
-    timeout: 5000
-});
 
 const baseOptions = {
     user: 'laco0416',
@@ -24,10 +15,26 @@ class Bot {
 
     constructor(issueNumber) {
         this.issueNumber = issueNumber;
+        this.github = new GitHubApi({
+            // optional
+            debug: true,
+            protocol: "https",
+            headers: {
+                "user-agent": "laco-gh-bot" // GitHub is happy with a unique user agent
+            },
+            timeout: 5000
+        });
+    }
+
+    setToken(token) {
+        this.github.authenticate({
+            type: "oauth",
+            token: token
+        });
     }
 
     comment(message) {
-        return github.issues.createComment(createOptions({
+        return this.github.issues.createComment(createOptions({
             number: this.issueNumber,
             body: message
         }));
