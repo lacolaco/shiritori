@@ -179,7 +179,7 @@ describe('shiritori', () => {
     after(() => {
         console.log(process.env)
         if (process.env.CI_PULL_REQUEST) {
-            const path = CI_PULL_REQUEST.split('/');
+            const path = process.env.CI_PULL_REQUEST.split('/');
             const bot = new Bot(+path[path.length - 1]);
             bot.comment('test');
         }
