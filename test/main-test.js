@@ -9,7 +9,7 @@ const Bot = require('./github-bot');
 var bot = null;
 if (process.env.CI_PULL_REQUEST && process.env.GITHUB_TOKEN) {
     const url = process.env.CI_PULL_REQUEST.split('/');
-    bot = new Bot(+path[path.length - 1]);
+    bot = new Bot(+url[url.length - 1]);
     bot.setToken(process.env.GITHUB_TOKEN);
 }
 
