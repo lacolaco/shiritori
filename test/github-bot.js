@@ -27,7 +27,7 @@ class Bot {
     }
 
     comment(message) {
-        return github.issues.getComments(createOptions({
+        return github.issues.createComment(createOptions({
             number: this.issueNumber,
             body: message
         }));
