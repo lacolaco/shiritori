@@ -20,8 +20,9 @@ class Bot {
     });
   }
 
-  createIssueComment({ message, owner, repo, number }) {
-    return this.octokit.issues.createComment({
+  async createIssueComment({ message, owner, repo, number }) {
+    console.log(message, owner, repo, number);
+    return await this.octokit.issues.createComment({
       owner,
       repo,
       number: number,
