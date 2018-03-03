@@ -2,7 +2,7 @@ version: 2.0
 jobs:
   build:
     docker:
-      image: circleci/node:carbon
+      - image: circleci/node:carbon
     steps:
       - restore_cache:
           keys:
