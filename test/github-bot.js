@@ -1,46 +1,35 @@
-'use strict';
-
-const GitHubApi = require('github');
-
-const baseOptions = {
-    user: 'laco0416',
-    repo: 'shiritori'
-};
-
-function createOptions(options) {
-    return Object.assign(baseOptions, options);
-}
+const Octokit = require('@octokit/rest');
 
 class Bot {
+  constructor() {
+    this.octokit = new Octokit({
+      // optional
+      debug: true,
+      protocol: 'https',
+      headers: {
+        'user-agent': 'laco-gh-bot' // GitHub is happy with a unique user agent
+      },
+      timeout: 5000
+    });
+  }
 
-    constructor(issueNumber) {
-        this.issueNumber = issueNumber;
-        this.github = new GitHubApi({
-            // optional
-            debug: true,
-            protocol: "https",
-            headers: {
-                "user-agent": "laco-gh-bot" // GitHub is happy with a unique user agent
-            },
-            timeout: 5000
-        });
-    }
+  setToken(token) {
+    this.octokit.authenticate({
+      type: 'oauth',
+      token: token
+    });
+  }
 
-    setToken(token) {
-        this.github.authenticate({
-            type: "oauth",
-            token: token
-        });
-    }
-
-    comment(message) {
-        return this.github.issues.createComment(createOptions({
-            number: this.issueNumber,
-            body: `**From Circle CI** 
+  async createIssueComment({ message, owner, repo, number }) {
+    return await this.octokit.issues.createComment({
+      owner,
+      repo,
+      number: number,
+      body: `**From Circle CI** 
 
 ${message}`
-        }));
-    }
+    });
+  }
 }
 
 module.exports = Bot;
