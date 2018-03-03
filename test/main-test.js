@@ -207,7 +207,7 @@ describe('shiritori', () => {
         CIRCLE_PROJECT_USERNAME,
         CIRCLE_PROJECT_REPONAME,
         CIRCLE_PR_NUMBER
-      } = process.env.CIRCLE_PROJECT_USERNAME;
+      } = process.env;
 
       return await bot.createIssueComment({
         owner: CIRCLE_PROJECT_REPONAME,
