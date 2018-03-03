@@ -4,6 +4,7 @@ jobs:
     docker:
       - image: circleci/node:carbon
     steps:
+      - checkout
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "yarn.lock" }}
