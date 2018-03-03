@@ -1,9 +1,9 @@
 'use strict';
 
-const GitHubApi = require('github');
+const GitHubApi = require('@octokit/rest');
 
 const baseOptions = {
-    user: 'laco0416',
+    user: 'lacolaco',
     repo: 'shiritori'
 };
 
