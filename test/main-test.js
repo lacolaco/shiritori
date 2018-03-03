@@ -200,18 +200,19 @@ describe('shiritori', () => {
     
 `;
 
-    if (process.env.CI_PULL_REQUEST && process.env.GITHUB_TOKEN) {
+    if (process.env.CIRCLE_PULL_REQUEST && process.env.GITHUB_TOKEN) {
       const bot = new Bot();
       bot.setToken(process.env.GITHUB_TOKEN);
+      console.log(process.env);
       const {
         CIRCLE_PROJECT_USERNAME,
         CIRCLE_PROJECT_REPONAME,
-        CI_PULL_REQUEST
+        CIRCLE_PULL_REQUEST
       } = process.env;
 
-      const prNumber = parseInt(CI_PULL_REQUEST.match(/\/(\d+)$/)[1]);
+      const prNumber = parseInt(CIRCLE_PULL_REQUEST.match(/\/(\d+)$/)[1]);
       return await bot.createIssueComment({
-        owner: CIRCLE_PROJECT_REPONAME,
+        owner: CIRCLE_PROJECT_USERNAME,
         repo: CIRCLE_PROJECT_REPONAME,
         number: prNumber,
         message
