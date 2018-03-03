@@ -208,7 +208,12 @@ describe('shiritori', () => {
         CIRCLE_PROJECT_REPONAME,
         CI_PULL_REQUEST
       } = process.env;
-      const prNumber = parseInt(CI_PULL_REQUEST.match(/\/(\d+)$/));
+      console.log(
+        CIRCLE_PROJECT_USERNAME,
+        CIRCLE_PROJECT_REPONAME,
+        CI_PULL_REQUEST
+      );
+      const prNumber = parseInt(CI_PULL_REQUEST.match(/\/(\d+)$/)[1]);
       return await bot.createIssueComment({
         owner: CIRCLE_PROJECT_REPONAME,
         repo: CIRCLE_PROJECT_REPONAME,
