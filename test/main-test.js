@@ -203,11 +203,10 @@ describe('shiritori', () => {
     if (process.env.CIRCLE_PULL_REQUEST && process.env.GITHUB_TOKEN) {
       const bot = new Bot();
       bot.setToken(process.env.GITHUB_TOKEN);
-      console.log(process.env);
       const {
         CIRCLE_PROJECT_USERNAME,
         CIRCLE_PROJECT_REPONAME,
-        CIRCLE_PULL_REQUEST
+        CIRCLE_PULL_REQUEST // "https://github.com/lacolaco/shiritori/pull/xx"
       } = process.env;
 
       const prNumber = parseInt(CIRCLE_PULL_REQUEST.match(/\/(\d+)$/)[1]);
