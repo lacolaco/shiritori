@@ -1,20 +1,21 @@
 version: 2.0
 jobs:
-  docker:
-    image: circleci/node:carbon
-  steps:
-    - restore_cache:
-        keys:
-        - v1-dependencies-{{ checksum "yarn.lock" }}
-        # fallback to using the latest cache if no exact match is found
-        - v1-dependencies-
+  build:
+    docker:
+      image: circleci/node:carbon
+    steps:
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "yarn.lock" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
 
-    - run: yarn install
+      - run: yarn install
 
-    - save_cache:
-        paths:
-          - node_modules
-        key: v1-dependencies-{{ checksum "yarn.lock" }}
-    # Test
-    - run: yarn test
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
+      # Test
+      - run: yarn test
         
