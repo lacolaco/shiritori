@@ -1,4 +1,4 @@
-const { Octokit } = require('@octokit/rest');
+const { Octokit } = require('@octokit/action');
 
 class Bot {
   constructor() {
@@ -9,10 +9,8 @@ class Bot {
     return await this.octokit.issues.createComment({
       owner,
       repo,
-      number: number,
-      body: `**From Circle CI** 
-
-${message}`,
+      issue_number: number,
+      body: `${message}`,
     });
   }
 }
