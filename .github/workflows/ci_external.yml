@@ -1,4 +1,4 @@
-name: CI
+name: CI for extenal PRs
 
 on:
   pull_request_target:
