@@ -204,12 +204,13 @@ describe('shiritori', () => {
 
     if (process.env.GITHUB_TOKEN && process.env.PR_NUMBER) {
       const bot = new Bot();
-      const { PR_NUMBER, REPOSITORY_OWNER, REPOSITORY_NAME } = process.env;
+      const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+      const number = process.env.PR_NUMBER;
 
       return await bot.createIssueComment({
-        owner: REPOSITORY_OWNER ?? 'lacolaco',
-        repo: REPOSITORY_NAME ?? 'shiritori',
-        number: PR_NUMBER,
+        owner,
+        repo,
+        number,
         message,
       });
     } else {
