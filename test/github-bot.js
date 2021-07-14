@@ -13,13 +13,6 @@ class Bot {
     });
   }
 
-  setToken(token) {
-    this.octokit.authenticate({
-      type: 'oauth',
-      token: token
-    });
-  }
-
   async createIssueComment({ message, owner, repo, number }) {
     return await this.octokit.issues.createComment({
       owner,

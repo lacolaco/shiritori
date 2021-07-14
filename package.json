@@ -4,7 +4,7 @@
   "description": "みなさんのGitHub緑化をお手伝いするしりとりリポジトリです。 参加の方法は[CONTRIBUTING.md](CONTRIBUTING.md)を参照してください。",
   "main": "test.js",
   "dependencies": {
-    "@octokit/rest": "^14.0.9"
+    "@octokit/rest": "^18.6.7"
   },
   "devDependencies": {
     "kuromoji": "0.0.5",

@@ -202,7 +202,6 @@ describe('shiritori', () => {
 
     if (process.env.CIRCLE_PULL_REQUEST && process.env.GITHUB_TOKEN) {
       const bot = new Bot();
-      bot.setToken(process.env.GITHUB_TOKEN);
       const {
         CIRCLE_PROJECT_USERNAME,
         CIRCLE_PROJECT_REPONAME,
