@@ -2,15 +2,7 @@ const { Octokit } = require('@octokit/rest');
 
 class Bot {
   constructor() {
-    this.octokit = new Octokit({
-      // optional
-      debug: true,
-      protocol: 'https',
-      headers: {
-        'user-agent': 'laco-gh-bot', // GitHub is happy with a unique user agent
-      },
-      timeout: 5000,
-    });
+    this.octokit = new Octokit();
   }
 
   async createIssueComment({ message, owner, repo, number }) {
