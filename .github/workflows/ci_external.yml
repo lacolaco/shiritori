@@ -1,0 +1,23 @@
+name: CI for extenal PRs
+
+on:
+  pull_request_target:
+    paths-ignore:
+      - '.github'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          cache: yarn
+      - run: yarn install
+      - run: yarn test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}

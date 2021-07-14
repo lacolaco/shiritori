@@ -11,7 +11,9 @@ function extractWordsFromREADME() {
   const content = fs
     .readFileSync(path.join(__dirname, '../README.md'))
     .toString();
-  const words = content.match(/\*\s(.*)/g).map(w => w.replace('* ', '').trim());
+  const words = content
+    .match(/\*\s(.*)/g)
+    .map((w) => w.replace('* ', '').trim());
   return words;
 }
 
@@ -39,9 +41,9 @@ function calculatePronunciation(word) {
   if (match) {
     return Promise.resolve(match[1]);
   } else {
-    return tokenizer.tokenize(word).then(tokens => {
+    return tokenizer.tokenize(word).then((tokens) => {
       return tokens
-        .map(token => token.pronunciation || token.surface_form)
+        .map((token) => token.pronunciation || token.surface_form)
         .join('');
     });
   }
@@ -50,7 +52,7 @@ function calculatePronunciation(word) {
 function assertGameEndByPronunciation(words) {
   return Promise.all(
     words.map((w, i) => {
-      return calculatePronunciation(w).then(pron => {
+      return calculatePronunciation(w).then((pron) => {
         if (pron.endsWith('ン') || pron.endsWith('ん')) {
           throw new Error(`Game end: ${w} (${pron})`);
         }
@@ -62,7 +64,7 @@ function assertGameEndByPronunciation(words) {
 function assertConnection(words) {
   const arr = [];
   const promises = words.map((w, i) => {
-    return calculatePronunciation(w).then(pron => {
+    return calculatePronunciation(w).then((pron) => {
       arr[i] = pron;
     });
   });
@@ -111,7 +113,7 @@ describe('meta_test', () => {
   });
   describe('tokenizer', () => {
     it('should work well', () => {
-      return tokenizer.tokenize('りんご').then(tokens => console.log(tokens));
+      return tokenizer.tokenize('りんご').then((tokens) => console.log(tokens));
     });
   });
   describe('assertGameEndByPronunciation', () => {
@@ -125,7 +127,7 @@ describe('meta_test', () => {
         () => {
           throw new Error('no error');
         },
-        err => {
+        (err) => {
           console.log(err);
         }
       );
@@ -146,7 +148,7 @@ describe('meta_test', () => {
         () => {
           throw new Error('no error');
         },
-        err => {
+        (err) => {
           console.log(err);
         }
       );
@@ -157,7 +159,7 @@ describe('meta_test', () => {
         () => {
           throw new Error('no error');
         },
-        err => {
+        (err) => {
           console.log(err);
         }
       );
@@ -200,21 +202,16 @@ describe('shiritori', () => {
     
 `;
 
-    if (process.env.CIRCLE_PULL_REQUEST && process.env.GITHUB_TOKEN) {
+    if (process.env.GITHUB_TOKEN && process.env.PR_NUMBER) {
       const bot = new Bot();
-      bot.setToken(process.env.GITHUB_TOKEN);
-      const {
-        CIRCLE_PROJECT_USERNAME,
-        CIRCLE_PROJECT_REPONAME,
-        CIRCLE_PULL_REQUEST // "https://github.com/lacolaco/shiritori/pull/xx"
-      } = process.env;
+      const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+      const number = process.env.PR_NUMBER;
 
-      const prNumber = parseInt(CIRCLE_PULL_REQUEST.match(/\/(\d+)$/)[1]);
       return await bot.createIssueComment({
-        owner: CIRCLE_PROJECT_USERNAME,
-        repo: CIRCLE_PROJECT_REPONAME,
-        number: prNumber,
-        message
+        owner,
+        repo,
+        number,
+        message,
       });
     } else {
       console.log(message);
