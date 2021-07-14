@@ -1,4 +1,4 @@
-const Octokit = require('@octokit/rest');
+const { Octokit } = require('@octokit/rest');
 
 class Bot {
   constructor() {
@@ -7,9 +7,9 @@ class Bot {
       debug: true,
       protocol: 'https',
       headers: {
-        'user-agent': 'laco-gh-bot' // GitHub is happy with a unique user agent
+        'user-agent': 'laco-gh-bot', // GitHub is happy with a unique user agent
       },
-      timeout: 5000
+      timeout: 5000,
     });
   }
 
@@ -20,7 +20,7 @@ class Bot {
       number: number,
       body: `**From Circle CI** 
 
-${message}`
+${message}`,
     });
   }
 }
